@@ -10,6 +10,9 @@ import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
 import RequirementFormPage from './pages/RequirementFormPage';
 import PriceCalculatorPage from './pages/PriceCalculatorPage';
+import StyleTestPage from './pages/StyleTestPage';
+import FloorplanPage from './pages/FloorplanPage';
+import ComparisonPage from './pages/ComparisonPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
@@ -21,6 +24,9 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/requirements" element={<RequirementFormPage />} />
           <Route path="/calculator" element={<PriceCalculatorPage />} />
+          <Route path="/style-test" element={<StyleTestPage />} />
+          <Route path="/floorplan" element={<FloorplanPage />} />
+          <Route path="/comparison" element={<ComparisonPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Box>

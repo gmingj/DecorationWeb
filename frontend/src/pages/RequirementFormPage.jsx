@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -11,6 +11,7 @@ import {
   StepLabel,
   Typography,
   CircularProgress,
+  Alert,
 } from '@mui/material';
 import { createProject } from '../store/projectSlice';
 import { updateFormData, resetForm } from '../store/requirementSlice';
@@ -35,9 +36,33 @@ const steps = [
 const RequirementFormPage = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [styleTestInfo, setStyleTestInfo] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const formData = useSelector((state) => state.requirements.formData);
+
+  // 检查是否从风格测试页面跳转过来
+  useEffect(() => {
+    if (location.state?.fromStyleTest && location.state?.preferredStyle) {
+      setStyleTestInfo({
+        style: location.state.preferredStyle,
+        fromTest: true
+      });
+      
+      // 自动更新风格偏好
+      dispatch(updateFormData({ 
+        section: 'stylePreferences', 
+        data: { 
+          ...formData.stylePreferences,
+          style: location.state.preferredStyle 
+        } 
+      }));
+      
+      // 如果是从风格测试页面跳转来的，直接跳到风格偏好步骤
+      setActiveStep(1);
+    }
+  }, [location.state, dispatch, formData.stylePreferences]);
 
   const handleNext = () => {
     setActiveStep(activeStep + 1);
@@ -50,6 +75,7 @@ const RequirementFormPage = () => {
   const handleReset = () => {
     setActiveStep(0);
     dispatch(resetForm());
+    setStyleTestInfo(null);
   };
 
   const handleSubmit = async () => {
@@ -95,10 +121,18 @@ const RequirementFormPage = () => {
         );
       case 1:
         return (
-          <StylePreferencesForm
-            formData={formData.stylePreferences}
-            onChange={(data) => handleFormChange('stylePreferences', data)}
-          />
+          <>
+            {styleTestInfo?.fromTest && (
+              <Alert severity="success" sx={{ mb: 3 }}>
+                根据您的风格测试结果，我们推荐您选择 <strong>{styleTestInfo.style}</strong> 风格
+              </Alert>
+            )}
+            <StylePreferencesForm
+              formData={formData.stylePreferences}
+              onChange={(data) => handleFormChange('stylePreferences', data)}
+              recommendedStyle={styleTestInfo?.style}
+            />
+          </>
         );
       case 2:
         return (

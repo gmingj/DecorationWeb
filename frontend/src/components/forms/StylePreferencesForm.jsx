@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -14,8 +14,9 @@ import {
   FormControl,
   FormLabel,
   Button,
+  Chip,
 } from '@mui/material';
-import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
+import { CloudUpload as CloudUploadIcon, Recommend as RecommendIcon } from '@mui/icons-material';
 
 const styles = [
   {
@@ -56,7 +57,14 @@ const colorPreferences = [
   '中性色调',
 ];
 
-const StylePreferencesForm = ({ formData, onChange }) => {
+const StylePreferencesForm = ({ formData, onChange, recommendedStyle }) => {
+  // 当有推荐风格时，自动选择该风格
+  useEffect(() => {
+    if (recommendedStyle && !formData.style) {
+      handleChange('style', recommendedStyle);
+    }
+  }, [recommendedStyle]);
+
   const handleChange = (field, value) => {
     onChange({ ...formData, [field]: value });
   };
@@ -100,9 +108,24 @@ const StylePreferencesForm = ({ formData, onChange }) => {
                     border: formData.style === style.value ? '2px solid' : 'none',
                     borderColor: 'primary.main',
                     height: '100%',
+                    position: 'relative'
                   }}
                   onClick={() => handleChange('style', style.value)}
                 >
+                  {recommendedStyle === style.value && (
+                    <Chip
+                      icon={<RecommendIcon />}
+                      label="推荐风格"
+                      color="secondary"
+                      size="small"
+                      sx={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        zIndex: 1
+                      }}
+                    />
+                  )}
                   <CardMedia
                     component="img"
                     height="140"
